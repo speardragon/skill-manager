@@ -2,7 +2,7 @@
 name: chains
 effort: medium
 description: "스킬 체인 패턴을 시각화하고 워크플로 병목을 분석한다. 트리거: skill chains, 체인 분석, workflow chains, 워크플로 패턴"
-allowed-tools: Bash(open *)
+allowed-tools: Bash(open *), Bash(python3 *)
 ---
 
 # 스킬 체인 분석

@@ -4,114 +4,223 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Skill Chain Analysis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
   <style>
+    :root {
+      --bg-deep:      #030c1a;
+      --bg-surface:   rgba(8, 22, 42, 0.65);
+      --bg-elevated:  rgba(12, 32, 58, 0.5);
+      --border-dim:   rgba(79, 172, 254, 0.07);
+      --border-soft:  rgba(79, 172, 254, 0.14);
+      --border-glow:  rgba(79, 172, 254, 0.3);
+      --text-bright:  #edf4ff;
+      --text-primary: #b8d0ea;
+      --text-muted:   #4e7396;
+      --text-faint:   #263f58;
+      --accent-a:     #4facfe;
+      --accent-b:     #00e0d0;
+      --success:      #00d4aa;
+      --warn:         #ffb74d;
+      --danger:       #ff6b6b;
+      --radius:       14px;
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #0f172a;
-      color: #e2e8f0;
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-primary);
       min-height: 100vh;
-      padding: 24px;
+      padding: 36px 32px;
+      overflow-x: hidden;
     }
 
+    /* ── Aurora background ────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 90% 60% at 75% -15%, rgba(79, 172, 254, 0.08) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 50% at -5% 85%, rgba(0, 224, 208, 0.05) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 40% at 50% 50%, rgba(79, 172, 254, 0.02) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    body > * { position: relative; z-index: 1; }
+
+    /* ── Header ───────────────────────────────────────────── */
     header {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 28px;
+      gap: 16px;
+      margin-bottom: 32px;
     }
-    header h1 { font-size: 22px; font-weight: 700; color: #f1f5f9; }
-    header span { font-size: 13px; color: #64748b; }
+    header h1 {
+      font-size: 24px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent-a), var(--accent-b));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.02em;
+    }
+    header span {
+      font-size: 12px;
+      color: var(--text-muted);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-dim);
+      padding: 4px 12px;
+      border-radius: 99px;
+      backdrop-filter: blur(8px);
+    }
 
     .month-nav {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       margin-left: auto;
     }
     .month-nav button {
-      background: #1e293b;
-      border: 1px solid #334155;
-      color: #94a3b8;
-      border-radius: 6px;
-      padding: 5px 12px;
-      font-size: 13px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-dim);
+      color: var(--text-muted);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-family: inherit;
       cursor: pointer;
-      transition: background 0.15s, color 0.15s;
+      backdrop-filter: blur(8px);
+      transition: all 0.25s ease;
     }
     .month-nav button:hover:not(:disabled) {
-      background: #334155;
-      color: #f1f5f9;
+      border-color: var(--border-soft);
+      color: var(--text-bright);
+      box-shadow: 0 0 16px rgba(79, 172, 254, 0.08);
     }
-    .month-nav button:disabled {
-      opacity: 0.3;
-      cursor: default;
-    }
+    .month-nav button:disabled { opacity: 0.25; cursor: default; }
     .month-nav .month-label {
-      font-size: 14px;
-      font-weight: 600;
-      color: #e2e8f0;
-      min-width: 72px;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-bright);
+      min-width: 78px;
       text-align: center;
     }
 
+    /* ── Cards ────────────────────────────────────────────── */
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius);
+      backdrop-filter: blur(12px);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+      border-color: var(--border-soft);
+    }
+
+    /* ── Summary grid ─────────────────────────────────────── */
     .summary-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-      margin-bottom: 24px;
+      gap: 16px;
+      margin-bottom: 28px;
     }
 
-    .card {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 10px;
-      padding: 18px 20px;
+    .summary-card {
+      padding: 22px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .summary-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      opacity: 0.6;
+      transition: opacity 0.3s ease;
+    }
+    .summary-card:hover::before { opacity: 1; }
+    .summary-card:nth-child(1)::before {
+      background: linear-gradient(90deg, #a78bfa, #818cf8);
+    }
+    .summary-card:nth-child(2)::before {
+      background: linear-gradient(90deg, var(--accent-a), var(--accent-b));
+    }
+    .summary-card:nth-child(3)::before {
+      background: linear-gradient(90deg, var(--warn), #ffd97a);
     }
 
     .summary-card .label {
-      font-size: 11px;
-      color: #64748b;
+      font-size: 10px;
+      color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 6px;
+      letter-spacing: 0.1em;
+      font-weight: 600;
+      margin-bottom: 10px;
     }
     .summary-card .value {
-      font-size: 26px;
-      font-weight: 700;
-      color: #f1f5f9;
+      font-size: 30px;
+      font-weight: 800;
+      color: var(--text-bright);
+      letter-spacing: -0.02em;
     }
     .summary-card .sub {
       font-size: 11px;
-      color: #64748b;
-      margin-top: 4px;
-      font-family: monospace;
+      color: var(--text-muted);
+      margin-top: 6px;
+      font-family: 'JetBrains Mono', monospace;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .chart-card { padding: 20px 22px; margin-bottom: 14px; }
-    .chart-card h2 {
-      font-size: 13px;
-      font-weight: 600;
-      color: #94a3b8;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
+    /* ── Chart card / Mermaid ─────────────────────────────── */
+    .chart-card {
+      padding: 24px 26px;
       margin-bottom: 16px;
+    }
+    .chart-card h2 {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .chart-card h2::before {
+      content: '';
+      display: inline-block;
+      width: 3px;
+      height: 12px;
+      border-radius: 2px;
+      background: linear-gradient(180deg, var(--accent-a), var(--accent-b));
     }
 
     .mermaid-wrap {
-      background: #0f172a;
-      border-radius: 8px;
-      padding: 20px;
+      background: rgba(3, 8, 18, 0.5);
+      border-radius: 10px;
+      border: 1px solid rgba(79, 172, 254, 0.05);
+      padding: 24px;
       overflow-x: auto;
     }
-
-    /* override mermaid SVG text colors */
     .mermaid svg { max-width: 100%; }
+
+    /* ── Table ────────────────────────────────────────────── */
+    .table-card {
+      padding: 0;
+      overflow: hidden;
+    }
 
     table {
       width: 100%;
@@ -120,43 +229,80 @@
     }
     thead th {
       text-align: left;
-      padding: 10px 14px;
-      font-size: 11px;
-      font-weight: 600;
-      color: #64748b;
+      padding: 14px 18px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 0.06em;
-      border-bottom: 1px solid #334155;
+      letter-spacing: 0.1em;
+      border-bottom: 1px solid var(--border-dim);
+      background: rgba(4, 14, 28, 0.4);
     }
-    tbody tr { border-bottom: 1px solid #1e293b; }
-    tbody tr:hover { background: #1e293b88; }
-    tbody td { padding: 11px 14px; color: #cbd5e1; }
-    tbody td.pattern { color: #e2e8f0; font-weight: 500; font-family: monospace; font-size: 12px; }
+    tbody tr {
+      border-bottom: 1px solid rgba(79, 172, 254, 0.04);
+      transition: background 0.2s ease;
+    }
+    tbody tr:hover { background: rgba(79, 172, 254, 0.04); }
+    tbody td { padding: 13px 18px; color: var(--text-primary); }
+    tbody td.pattern {
+      color: var(--text-bright);
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+    }
 
     .tag {
       display: inline-block;
-      padding: 2px 7px;
+      padding: 3px 10px;
       border-radius: 99px;
       font-size: 11px;
-      font-weight: 600;
+      font-weight: 700;
+      letter-spacing: 0.02em;
     }
-    .tag.bottleneck { background: #ef444422; color: #ef4444; }
-    .tag.ok         { background: #10b98122; color: #10b981; }
+    .tag.bottleneck {
+      background: linear-gradient(135deg, rgba(255, 107, 107, 0.15), rgba(255, 96, 96, 0.08));
+      color: var(--danger);
+      border: 1px solid rgba(255, 107, 107, 0.2);
+    }
+    .tag.ok {
+      background: linear-gradient(135deg, rgba(0, 212, 170, 0.15), rgba(0, 224, 160, 0.08));
+      color: var(--success);
+      border: 1px solid rgba(0, 212, 170, 0.2);
+    }
 
+    /* ── No data ──────────────────────────────────────────── */
     .no-data {
       text-align: center;
-      padding: 60px 20px;
-      color: #475569;
+      padding: 80px 20px;
+      color: var(--text-muted);
     }
-    .no-data p { font-size: 15px; margin-bottom: 8px; }
-    .no-data small { font-size: 12px; }
+    .no-data p {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+    }
+    .no-data small { font-size: 13px; color: var(--text-muted); }
 
+    /* ── Footer ───────────────────────────────────────────── */
     footer {
-      margin-top: 24px;
+      margin-top: 28px;
       font-size: 11px;
-      color: #334155;
+      color: var(--text-faint);
       text-align: right;
+      font-family: 'JetBrains Mono', monospace;
     }
+
+    /* ── Animations ───────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .summary-grid, .chart-card, .table-card {
+      animation: fadeUp 0.5s ease both;
+    }
+    .chart-card { animation-delay: 0.08s; }
+    .table-card { animation-delay: 0.16s; }
   </style>
 </head>
 <body>
@@ -165,9 +311,9 @@
   <h1>Skill Chain Analysis</h1>
   <span id="period"></span>
   <div class="month-nav">
-    <button id="btn-prev" title="이전 달">◀</button>
+    <button id="btn-prev" title="이전 주">&#9664;</button>
     <span class="month-label" id="nav-month"></span>
-    <button id="btn-next" title="다음 달">▶</button>
+    <button id="btn-next" title="다음 주">&#9654;</button>
   </div>
 </header>
 
@@ -180,7 +326,7 @@
   </div>
 </div>
 
-<div class="card" style="padding:0; overflow:hidden;">
+<div class="card table-card">
   <table>
     <thead>
       <tr>
@@ -209,21 +355,22 @@
     startOnLoad: false,
     theme: 'dark',
     themeVariables: {
-      background: '#0f172a',
-      primaryColor: '#1e3a5f',
-      primaryTextColor: '#e2e8f0',
-      primaryBorderColor: '#3b82f6',
-      lineColor: '#475569',
-      secondaryColor: '#1e293b',
-      tertiaryColor: '#1e293b',
-      edgeLabelBackground: '#1e293b',
+      background: '#030c1a',
+      primaryColor: '#0d2a4a',
+      primaryTextColor: '#b8d0ea',
+      primaryBorderColor: 'rgba(79, 172, 254, 0.5)',
+      lineColor: 'rgba(79, 172, 254, 0.3)',
+      secondaryColor: '#071626',
+      tertiaryColor: '#071626',
+      edgeLabelBackground: '#071626',
       fontSize: '13px',
+      fontFamily: "'Plus Jakarta Sans', sans-serif",
     },
     flowchart: { curve: 'basis', padding: 20 }
   });
 
   function fmtDuration(ms) {
-    if (!ms) return '—';
+    if (!ms) return '\u2014';
     if (ms < 1000) return ms + 'ms';
     return (ms / 1000).toFixed(1) + 's';
   }
@@ -235,7 +382,6 @@
   function updateNav() {
     const idx = allWeeks.indexOf(currentWeek);
     document.getElementById('nav-month').textContent = currentWeek;
-    // allWeeks는 내림차순(최신→과거) → ◀ 이전 주 = idx+1, ▶ 다음 주 = idx-1
     document.getElementById('btn-prev').disabled = idx < 0 || idx >= allWeeks.length - 1;
     document.getElementById('btn-next').disabled = idx <= 0;
   }
@@ -245,18 +391,18 @@
 
     if (!DATA || !DATA.chains || Object.keys(DATA.chains).length === 0) {
       document.getElementById('summary-grid').innerHTML = `
-        <div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:#475569;">
-          <p style="font-size:15px;margin-bottom:8px;">${week} 체인 데이터가 없습니다.</p>
-          <small style="font-size:12px;">한 세션에서 2개 이상의 스킬을 연속 사용하면 체인이 기록됩니다.</small>
+        <div style="grid-column:1/-1;text-align:center;padding:48px 20px;color:var(--text-muted);">
+          <p style="font-size:15px;margin-bottom:8px;color:var(--text-primary);font-weight:600;">${week} \uCCB4\uC778 \uB370\uC774\uD130\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4.</p>
+          <small style="font-size:12px;">\uD55C \uC138\uC158\uC5D0\uC11C 2\uAC1C \uC774\uC0C1\uC758 \uC2A4\uD0AC\uC744 \uC5F0\uC18D \uC0AC\uC6A9\uD558\uBA74 \uCCB4\uC778\uC774 \uAE30\uB85D\uB429\uB2C8\uB2E4.</small>
         </div>`;
       document.getElementById('period').textContent = week;
       document.querySelector('.chart-card').style.display = 'none';
-      document.querySelector('.card[style*="padding:0"]').style.display = 'none';
+      document.querySelector('.table-card').style.display = 'none';
       return;
     }
 
     document.querySelector('.chart-card').style.display = '';
-    document.querySelector('.card[style*="padding:0"]').style.display = '';
+    document.querySelector('.table-card').style.display = '';
     document.getElementById('period').textContent = DATA.week || week;
 
     const chains = Object.entries(DATA.chains).sort(
@@ -269,16 +415,16 @@
 
     document.getElementById('summary-grid').innerHTML = `
       <div class="card summary-card">
-        <div class="label">고유 체인 패턴</div>
+        <div class="label">\uACE0\uC720 \uCCB4\uC778 \uD328\uD134</div>
         <div class="value">${chains.length}</div>
       </div>
       <div class="card summary-card">
-        <div class="label">총 체인 실행</div>
+        <div class="label">\uCD1D \uCCB4\uC778 \uC2E4\uD589</div>
         <div class="value">${totalRuns}</div>
       </div>
       <div class="card summary-card">
-        <div class="label">가장 빈번한 체인</div>
-        <div class="value">${topChain ? topChain[1].count + '회' : '—'}</div>
+        <div class="label">\uAC00\uC7A5 \uBE48\uBC88\uD55C \uCCB4\uC778</div>
+        <div class="value">${topChain ? topChain[1].count + '\uD68C' : '\u2014'}</div>
         <div class="sub">${topChain ? topChain[0] : ''}</div>
       </div>
     `;
@@ -286,7 +432,7 @@
     // ── Mermaid 다이어그램 빌드 ────────────────────────────────────────────
     const edgeCount = {};
     for (const [pattern, info] of chains) {
-      const steps = pattern.split(' → ');
+      const steps = pattern.split(' \u2192 ');
       for (let i = 0; i < steps.length - 1; i++) {
         const key = steps[i] + '|||' + steps[i + 1];
         edgeCount[key] = (edgeCount[key] || 0) + info.count;
@@ -297,7 +443,7 @@
 
     const nodeSet = new Set();
     for (const [pattern] of chains) {
-      pattern.split(' → ').forEach(s => nodeSet.add(s));
+      pattern.split(' \u2192 ').forEach(s => nodeSet.add(s));
     }
 
     let diagram = 'flowchart LR\n';
@@ -308,7 +454,7 @@
       const [from, to] = edge.split('|||');
       const thickness = Math.max(1, Math.round(count / maxEdge * 4));
       const style = thickness >= 3 ? '==>' : '-->';
-      diagram += `  ${sanitizeId(from)} ${style}|"${count}회"| ${sanitizeId(to)}\n`;
+      diagram += `  ${sanitizeId(from)} ${style}|"${count}\uD68C"| ${sanitizeId(to)}\n`;
     }
 
     const el = document.getElementById('mermaid-diagram');
@@ -328,7 +474,7 @@
           <td class="pattern">${pattern}</td>
           <td>${v.count}</td>
           <td>${fmtDuration(avgMs)}</td>
-          <td><span class="tag ${isBottleneck ? 'bottleneck' : 'ok'}">${isBottleneck ? '병목' : '정상'}</span></td>
+          <td><span class="tag ${isBottleneck ? 'bottleneck' : 'ok'}">${isBottleneck ? '\uBCD1\uBAA9' : '\uC815\uC0C1'}</span></td>
         </tr>`;
     }).join('');
   }
@@ -337,14 +483,14 @@
     if (!PAYLOAD || Object.keys(allData).length === 0) {
       document.body.innerHTML = `
         <div class="no-data">
-          <p>아직 체인 데이터가 없습니다.</p>
-          <small>한 세션에서 2개 이상의 스킬을 연속 사용하면 체인이 기록됩니다.</small>
+          <p>\uC544\uC9C1 \uCCB4\uC778 \uB370\uC774\uD130\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4.</p>
+          <small>\uD55C \uC138\uC158\uC5D0\uC11C 2\uAC1C \uC774\uC0C1\uC758 \uC2A4\uD0AC\uC744 \uC5F0\uC18D \uC0AC\uC6A9\uD558\uBA74 \uCCB4\uC778\uC774 \uAE30\uB85D\uB429\uB2C8\uB2E4.</small>
         </div>`;
       return;
     }
 
     document.getElementById('footer').textContent =
-      '생성: ' + new Date().toLocaleString('ko-KR');
+      'Generated ' + new Date().toLocaleString('ko-KR');
 
     document.getElementById('btn-prev').addEventListener('click', async () => {
       const idx = allWeeks.indexOf(currentWeek);
