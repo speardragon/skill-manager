@@ -15,7 +15,7 @@ Claude Code 스킬 워크플로 효율성 분석 플러그인.
 
 ```bash
 /plugin marketplace add speardragon/skill-manager
-/plugin install skill-manager
+/plugin install skill-manager@skill-manager
 ```
 
 ## 데이터 수집

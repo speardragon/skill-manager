@@ -1,0 +1,13 @@
+{
+  "name": "skill-manager",
+  "owner": {
+    "name": "speardragon",
+    "url": "https://github.com/speardragon"
+  },
+  "plugins": [
+    {
+      "name": "skill-manager",
+      "source": "./plugins/skill-manager"
+    }
+  ]
+}
