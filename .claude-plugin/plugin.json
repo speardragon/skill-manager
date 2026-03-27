@@ -1,0 +1,10 @@
+{
+  "name": "skill-manager",
+  "description": "스킬 워크플로 효율성 분석: 체인 감지, 성공률 분석, 대시보드 시각화, 리포트 공유",
+  "version": "1.2.0",
+  "author": {
+    "name": "goorm"
+  },
+  "repository": "https://github.com/goorm-dev/aidt-docs",
+  "license": "MIT"
+}
