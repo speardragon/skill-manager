@@ -2,7 +2,7 @@
 name: stats
 effort: medium
 description: "스킬 사용 통계 대시보드를 생성하고 브라우저에서 연다. 트리거: skill stats, 스킬 통계, 사용량 대시보드, skill analytics"
-allowed-tools: Bash(open *)
+allowed-tools: Bash(open *), Bash(python3 *)
 ---
 
 # 스킬 사용 통계 대시보드
